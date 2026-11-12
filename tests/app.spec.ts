@@ -26,10 +26,30 @@ test('each phase card shows its own progress badge', async ({ page }) => {
   await expect(localAi.locator('.phase-progress')).toHaveText('1/1 verified')
 })
 
-test('page does not scroll sideways', async ({ page }) => {
+test('progress badges stay inside their cards on a 300px screen', async ({ page }) => {
+  await page.setViewportSize({ width: 300, height: 640 })
   await page.goto('/')
-  const overflow = await page.evaluate(
-    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+  const spills = await page.locator('.phase-card').evaluateAll((cards) =>
+    cards
+      .map((card) => {
+        const badge = card.querySelector('.phase-progress')
+        if (!badge) return 'missing badge'
+        const c = card.getBoundingClientRect()
+        const b = badge.getBoundingClientRect()
+        return b.right <= c.right + 0.5 && b.left >= c.left - 0.5 ? null : card.querySelector('h2')?.textContent
+      })
+      .filter(Boolean),
   )
-  expect(overflow).toBeLessThanOrEqual(0)
+  expect(spills).toEqual([])
 })
+
+for (const width of [undefined, 320]) {
+  test(`page does not scroll sideways${width ? ` at ${width}px` : ''}`, async ({ page }) => {
+    if (width) await page.setViewportSize({ width, height: 640 })
+    await page.goto('/')
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    )
+    expect(overflow).toBeLessThanOrEqual(0)
+  })
+}

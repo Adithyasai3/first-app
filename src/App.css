@@ -46,8 +46,13 @@
 
 .phase-head {
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
   align-items: center;
+}
+
+.phase-head > div {
+  min-width: 0;
 }
 
 .phase-num {
