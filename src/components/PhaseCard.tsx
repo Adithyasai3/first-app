@@ -4,6 +4,8 @@ const statusIcon = { done: '✓', skipped: '–' } as const
 const statusLabel = { done: 'Verified', skipped: 'Skipped' } as const
 
 export function PhaseCard({ phase }: { phase: Phase }) {
+  const verifiedCount = phase.checks.filter((check) => check.status === 'done').length
+
   return (
     <article className="phase-card" aria-labelledby={`phase-${phase.id}`}>
       <header className="phase-head">
@@ -12,6 +14,7 @@ export function PhaseCard({ phase }: { phase: Phase }) {
           <p className="phase-nick">{phase.nickname}</p>
           <h2 id={`phase-${phase.id}`}>{phase.name}</h2>
         </div>
+        <span className="phase-progress">{verifiedCount}/{phase.checks.length} verified</span>
       </header>
 
       <ul className="checks">
